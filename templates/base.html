@@ -18,7 +18,7 @@
                 <a href="{% url 'create_ride' %}" class="btn-nav" style="border-radius: 8px; text-decoration: none;">Create Ride</a>
                 <form action="{% url 'logout' %}" method="post" style="display:inline; margin: 0; padding: 0;">
                     {% csrf_token %}
-                    <button type="submit" class="btn-nav" style="background: none; border: none; font-size: 0.9rem; font-weight: 500; color: var(--muted); padding: .35rem .7rem; border-radius: 8px; cursor: pointer; font-family: inherit;">Logout</button>
+                    <button type="submit" class="btn-nav" style="background: #ef4444; border: none; font-size: 0.9rem; font-weight: 500; color: #ffffff; padding: .35rem .7rem; border-radius: 8px; cursor: pointer; font-family: inherit;">Logout</button>
                 </form>
                 {% else %}
                 <a href="{% url 'login' %}">Login</a>

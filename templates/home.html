@@ -1,6 +1,33 @@
 {% extends "base.html" %}
 
 {% block content %}
+<!-- Hero Section -->
+{% if not user.is_authenticated %}
+<div class="hero">
+    <div class="hero-content">
+        <h1 class="hero-title">Share Rides, Save Money 🚗</h1>
+        <p class="hero-sub">Find daily commute partners going your way. Save money, reduce traffic, and travel smarter.</p>
+        <div class="hero-actions">
+            <a href="{% url 'signup' %}" class="btn btn-primary" style="padding: .75rem 2rem; font-size: 1rem;">Get Started</a>
+            <a href="{% url 'login' %}" class="btn btn-outline" style="padding: .75rem 2rem; font-size: 1rem;">Login</a>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="welcome-bar">
+    👋 Welcome back, <strong>{{ user.username }}</strong>! Ready to ride today?
+</div>
+{% endif %}
+<!-- Search Bar -->
+<form method="GET" action="{% url 'home' %}">
+    <div class="search-bar">
+        <input type="text" name="source" placeholder="🔍 From..." value="{{ source }}">
+        <input type="text" name="destination" placeholder="📍 To..." value="{{ destination }}">
+        <input type="date" name="date" value="{{ date }}">
+        <button type="submit" class="btn btn-primary">Search</button>
+        <a href="{% url 'home' %}" class="btn btn-outline">Clear</a>
+    </div>
+</form>
 <h1 class="page-title">Available Rides</h1>
 
 {% if rides %}
