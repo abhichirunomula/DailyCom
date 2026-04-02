@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="form-card">
+    <h2>Create a Ride </h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div style="margin-bottom: 1.5rem;">
+            {{ form.as_p }}
+        </div>
+        <button type="submit" class="btn btn-primary">Create Ride</button>
+    </form>
+</div>
+{% endblock %}

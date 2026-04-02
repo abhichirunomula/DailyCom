@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="page-title">Available Rides</h1>
+
+{% if rides %}
+    <div class="rides-list">
+        {% for ride in rides %}
+            <div class="card">
+                <div class="card-info">
+                    <div class="card-route">{{ ride.source }} &rarr; {{ ride.destination }}</div>
+                    <span class="badge badge-info" style="background: #e0f2fe; color: #0284c7;">📅 {{ ride.date }}</span>
+                    <span class="badge {% if ride.seats_available > 0 %}badge-green{% else %}badge-red{% endif %}">
+                        💺 {{ ride.seats_available }} seats left
+                    </span>
+                    <span class="badge">💰 ₹{{ ride.price }}</span>
+                </div>
+                <div class="card-action">
+                    {% if user.is_authenticated %}
+                        {% if ride.driver == user %}
+                            <form method="POST" action="{% url 'delete_ride' ride.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger"
+                                    onclick="return confirm('Delete this ride? All bookings will be removed.')">
+                                    Delete Ride
+                                </button>
+                            </form>
+                        {% elif ride.id in booked_rides %}
+                            <button class="btn btn-booked" disabled>Already Booked</button>
+                        {% elif ride.seats_available > 0 %}
+                            <a href="{% url 'book_ride' ride.id %}" class="btn btn-primary">Book Ride</a>
+                        {% else %}
+                            <button class="btn btn-booked" disabled>Fully Booked</button>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-outline">Login to Book</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty">
+        <h2>No rides available</h2>
+        <p>Check back later or create a new ride!</p>
+    </div>
+{% endif %}
+{% endblock %}
