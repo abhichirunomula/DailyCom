@@ -1,14 +1,170 @@
 {% extends 'base.html' %}
-
 {% block content %}
-<div class="form-card">
-    <h2>Create a Ride </h2>
-    <form method="POST">
-        {% csrf_token %}
-        <div style="margin-bottom: 1.5rem;">
-            {{ form.as_p }}
-        </div>
-        <button type="submit" class="btn btn-primary">Create Ride</button>
-    </form>
+<div class="form-card" style="max-width:580px;">
+  <h2>Create a Ride 🚗</h2>
+  <form method="POST" id="create-ride-form">
+    {% csrf_token %}
+
+    <!-- Source -->
+    <div style="margin-bottom:1rem;">
+      <label for="id_source">📍 Pickup Location</label>
+      <div style="position:relative;">
+        <input type="text" name="source" id="id_source"
+          placeholder="Type or click 📌 to pick on map..."
+          class="maps-input" autocomplete="off" required>
+        <button type="button" class="pin-btn" onclick="activatePicker('source')" title="Pick on map">📌</button>
+      </div>
+    </div>
+
+    <!-- Destination -->
+    <div style="margin-bottom:1rem;">
+      <label for="id_destination">🏁 Drop Location</label>
+      <div style="position:relative;">
+        <input type="text" name="destination" id="id_destination"
+          placeholder="Type or click 📌 to pick on map..."
+          class="maps-input" autocomplete="off" required>
+        <button type="button" class="pin-btn" onclick="activatePicker('destination')" title="Pick on map">📌</button>
+      </div>
+    </div>
+
+    <!-- Map -->
+    <div style="margin-bottom:1.25rem;">
+      <div id="picker-hint" style="font-size:.8rem;color:var(--muted);margin-bottom:.4rem;display:none;">
+        🖱️ Click on the map to set the location
+      </div>
+      <div id="ride-map" style="width:100%;height:280px;border-radius:10px;border:1px solid var(--border);"></div>
+    </div>
+
+    <!-- Date -->
+    <div style="margin-bottom:1rem;">
+      <label>📅 Date</label>
+      {{ form.date }}
+    </div>
+
+    <!-- Seats -->
+    <div style="margin-bottom:1rem;">
+      <label>💺 Seats Available</label>
+      {{ form.seats_available }}
+    </div>
+
+    <!-- Price -->
+    <div style="margin-bottom:1.5rem;">
+      <label>💰 Price (₹)</label>
+      {{ form.price }}
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="width:100%;">Create Ride</button>
+  </form>
 </div>
+
+<script>
+let map, directionsService, directionsRenderer;
+let sourceMarker = null, destMarker = null;
+let activePicker = null;
+let geocoder;
+
+function setupCreateRideMap() {
+  geocoder = new google.maps.Geocoder();
+
+  map = new google.maps.Map(document.getElementById('ride-map'), {
+    zoom: 12,
+    center: { lat: 17.385, lng: 78.4867 }, // Hyderabad
+    mapTypeControl: false,
+    streetViewControl: false,
+  });
+
+  directionsService = new google.maps.DirectionsService();
+  directionsRenderer = new google.maps.DirectionsRenderer();
+  directionsRenderer.setMap(map);
+
+  // Autocomplete
+  const sourceAC = new google.maps.places.Autocomplete(
+    document.getElementById('id_source'),
+    { componentRestrictions: { country: 'in' } }
+  );
+  const destAC = new google.maps.places.Autocomplete(
+    document.getElementById('id_destination'),
+    { componentRestrictions: { country: 'in' } }
+  );
+
+  sourceAC.addListener('place_changed', () => {
+    const place = sourceAC.getPlace();
+    if (place.geometry) placeMarker('source', place.geometry.location, place.formatted_address);
+  });
+
+  destAC.addListener('place_changed', () => {
+    const place = destAC.getPlace();
+    if (place.geometry) placeMarker('destination', place.geometry.location, place.formatted_address);
+  });
+
+  // Click on map to pick location
+  map.addListener('click', (e) => {
+    if (!activePicker) return;
+    geocoder.geocode({ location: e.latLng }, (results, status) => {
+      if (status === 'OK' && results[0]) {
+        const address = results[0].formatted_address;
+        document.getElementById(`id_${activePicker}`).value = address;
+        placeMarker(activePicker, e.latLng, address);
+        deactivatePicker();
+      }
+    });
+  });
+}
+
+function placeMarker(type, latLng, address) {
+  const isSource = type === 'source';
+  const icon = isSource
+    ? 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+    : 'http://maps.google.com/mapfiles/ms/icons/red-dot.png';
+
+  if (isSource) {
+    if (sourceMarker) sourceMarker.setMap(null);
+    sourceMarker = new google.maps.Marker({ position: latLng, map, icon, title: 'Pickup' });
+  } else {
+    if (destMarker) destMarker.setMap(null);
+    destMarker = new google.maps.Marker({ position: latLng, map, icon, title: 'Drop' });
+  }
+
+  map.panTo(latLng);
+  tryDrawRoute();
+}
+
+function tryDrawRoute() {
+  const src = document.getElementById('id_source').value;
+  const dst = document.getElementById('id_destination').value;
+  if (!src || !dst) return;
+
+  directionsService.route({
+    origin: src,
+    destination: dst,
+    travelMode: google.maps.TravelMode.DRIVING,
+  }, (result, status) => {
+    if (status === 'OK') {
+      if (sourceMarker) sourceMarker.setMap(null);
+      if (destMarker) destMarker.setMap(null);
+      directionsRenderer.setDirections(result);
+    }
+  });
+}
+
+function activatePicker(type) {
+  activePicker = type;
+  const hint = document.getElementById('picker-hint');
+  hint.style.display = 'block';
+  hint.textContent = `🖱️ Click on the map to set the ${type === 'source' ? 'pickup' : 'drop'} location`;
+  map.getDiv().style.cursor = 'crosshair';
+}
+
+function deactivatePicker() {
+  activePicker = null;
+  document.getElementById('picker-hint').style.display = 'none';
+  map.getDiv().style.cursor = '';
+}
+
+if (window._mapsReady) {
+  setupCreateRideMap();
+} else {
+  document.addEventListener('maps:ready', setupCreateRideMap);
+}
+</script>
 {% endblock %}
