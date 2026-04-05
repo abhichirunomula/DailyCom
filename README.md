@@ -121,8 +121,8 @@ python manage.py runserver
 
 ## 👨‍💻 Author
 
-Abhi
-Engineering Student | Web Developer
+Abhiram Chirunomula
+Engineer !
 
 ---
 
