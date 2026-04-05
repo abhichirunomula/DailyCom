@@ -2,7 +2,7 @@ DailyCom – Smart Ride Sharing Platform For Daily Commuters !
 
 A web-based ride-sharing platform designed to help daily commuters create, find, and share rides efficiently.
 
-#Overview
+Overview
 
 DailyCom focuses on solving a real-world problem:
 daily commuters struggle to find reliable, recurring ride-sharing options.
