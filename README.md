@@ -1,12 +1,12 @@
-DailyCom – Smart Ride Sharing Platform For Daily Commuters !
+🚗 DailyCom – Smart Ride Sharing Platform
 
 A web-based ride-sharing platform designed to help daily commuters create, find, and share rides efficiently.
 
-Overview
+📌 Overview
 
 DailyCom focuses on solving a real-world problem:
 daily commuters struggle to find reliable, recurring ride-sharing options.
-And Many ride apps have also put on prices that are not suitable for Daily Commuters!
+
 Unlike traditional ride apps, this platform is built specifically for:
 
 Students 🎓
@@ -22,7 +22,6 @@ Most ride-sharing platforms:
 Focus on one-time bookings
 Lack community-based commuting
 Don’t support daily recurring travel
-High Cost For Daily Travel
 
 This leads to:
 
@@ -134,9 +133,8 @@ This project is open-source and available under the MIT License.
 
 👨‍💻 Author
 
-Abhiram Chirunomula
-Electronics And Communication Engineer
-abhichirunomula@gmail.com
+Abhi
+Engineering Student | Web Developer
 
 ⭐ Show Your Support
 
