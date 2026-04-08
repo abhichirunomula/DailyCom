@@ -1,75 +1,623 @@
 {% extends "base.html" %}
-
 {% block content %}
-<!-- Hero Section -->
-{% if not user.is_authenticated %}
-<div class="hero">
-    <div class="hero-content">
-        <h1 class="hero-title">Share Rides, Save Money 🚗</h1>
-        <p class="hero-sub">Find daily commute partners going your way. Save money, reduce traffic, and travel smarter.</p>
-        <div class="hero-actions">
-            <a href="{% url 'signup' %}" class="btn btn-primary" style="padding: .75rem 2rem; font-size: 1rem;">Get Started</a>
-            <a href="{% url 'login' %}" class="btn btn-outline" style="padding: .75rem 2rem; font-size: 1rem;">Login</a>
-        </div>
-    </div>
+
+<style>
+  /* ── Hero ── */
+  .dc-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 3.5rem 0 2.5rem;
+    min-height: 340px;
+  }
+  .dc-hero-left { flex: 1; max-width: 520px; }
+  .dc-hero-left h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    line-height: 1.15;
+    color: var(--text);
+    letter-spacing: -1px;
+    margin-bottom: 1rem;
+  }
+  .dc-hero-left h1 span { color: var(--primary); }
+  .dc-hero-left p {
+    font-size: 1.05rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 1.75rem;
+    max-width: 420px;
+  }
+  .dc-hero-actions { display: flex; gap: .75rem; flex-wrap: wrap; }
+  .dc-hero-right {
+    flex: 0 0 420px;
+    max-width: 420px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 12px 48px rgba(79,70,229,.13);
+    background: linear-gradient(135deg, #ede9fe 0%, #dbeafe 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 280px;
+  }
+  .dc-hero-illustration {
+    width: 100%;
+    padding: 2rem;
+    text-align: center;
+  }
+  .dc-hero-illustration svg { width: 100%; max-width: 320px; }
+
+  /* ── Search bar ── */
+  .dc-search-wrap {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 4px 32px rgba(79,70,229,.10);
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+  }
+  .dc-search-field {
+    flex: 1;
+    min-width: 150px;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    border-right: 1.5px solid var(--border);
+    padding-right: .75rem;
+  }
+  .dc-search-field:last-of-type { border-right: none; }
+  .dc-search-field svg { flex-shrink: 0; color: var(--muted); }
+  .dc-search-field input {
+    border: none;
+    outline: none;
+    font-size: .95rem;
+    font-family: inherit;
+    color: var(--text);
+    background: transparent;
+    width: 100%;
+    padding: .35rem 0;
+  }
+  .dc-search-field input::placeholder { color: var(--muted); }
+  .dc-search-actions { display: flex; gap: .5rem; }
+  .dc-location-btn {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .85rem;
+    color: var(--primary);
+    background: #ede9fe;
+    border: none;
+    border-radius: 8px;
+    padding: .45rem .85rem;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    transition: background .15s;
+    white-space: nowrap;
+  }
+  .dc-location-btn:hover { background: #ddd6fe; }
+  .dc-location-status {
+    font-size: .8rem;
+    color: var(--muted);
+    margin-bottom: .75rem;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    min-height: 20px;
+  }
+  .dc-location-status.success { color: #16a34a; }
+  .dc-location-status.error { color: #dc2626; }
+
+  /* ── Welcome bar ── */
+  .dc-welcome {
+    background: #ede9fe;
+    color: var(--primary);
+    border-radius: 12px;
+    padding: .85rem 1.25rem;
+    font-size: .95rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    border: 1px solid #c7d2fe;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .5rem;
+  }
+
+  /* ── Features strip ── */
+  .dc-features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  .dc-feature {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 12px rgba(79,70,229,.06);
+  }
+  .dc-feature-icon {
+    width: 44px;
+    height: 44px;
+    background: #ede9fe;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  .dc-feature h3 { font-size: 1rem; font-weight: 700; margin-bottom: .4rem; color: var(--text); }
+  .dc-feature p { font-size: .875rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── Section header ── */
+  .dc-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+  .dc-section-header h2 { font-size: 1.5rem; font-weight: 700; color: var(--text); }
+  .dc-ride-count {
+    font-size: .85rem;
+    color: var(--muted);
+    background: #f1f5f9;
+    border-radius: 999px;
+    padding: .3rem .85rem;
+  }
+
+  /* ── Ride cards ── */
+  .dc-rides-grid { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 3rem; }
+  .dc-ride-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    transition: box-shadow .15s, transform .15s;
+    cursor: default;
+  }
+  .dc-ride-card:hover {
+    box-shadow: 0 6px 28px rgba(79,70,229,.11);
+    transform: translateY(-2px);
+  }
+  .dc-ride-left { flex: 1; min-width: 220px; }
+  .dc-ride-route {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: .6rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .dc-ride-route-arrow {
+    color: var(--primary);
+    font-size: .9rem;
+  }
+  .dc-ride-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem .75rem;
+    align-items: center;
+  }
+  .dc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    font-size: .78rem;
+    font-weight: 600;
+    padding: .25rem .65rem;
+    border-radius: 999px;
+  }
+  .dc-badge-date { background: #e0f2fe; color: #0369a1; }
+  .dc-badge-seats-ok { background: #dcfce7; color: #15803d; }
+  .dc-badge-seats-no { background: #fee2e2; color: #b91c1c; }
+  .dc-badge-price { background: #fef9c3; color: #854d0e; }
+  .dc-ride-driver {
+    margin-top: .6rem;
+    font-size: .8rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+  }
+  .dc-driver-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #ede9fe;
+    color: var(--primary);
+    font-size: .7rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .dc-ride-action { flex-shrink: 0; }
+
+  /* ── Empty state ── */
+  .dc-empty {
+    text-align: center;
+    padding: 4rem 1rem;
+    color: var(--muted);
+    background: #fff;
+    border: 1px dashed var(--border);
+    border-radius: 14px;
+    margin-bottom: 3rem;
+  }
+  .dc-empty-icon {
+    width: 64px;
+    height: 64px;
+    background: #f1f5f9;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+  }
+  .dc-empty h3 { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: .4rem; }
+  .dc-empty p { font-size: .9rem; margin-bottom: 1.25rem; }
+
+  /* ── CTA Banner ── */
+  .dc-cta {
+    background: #1e1b4b;
+    border-radius: 20px;
+    padding: 3rem 2.5rem;
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .dc-cta::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: rgba(79,70,229,.25);
+    border-radius: 50%;
+  }
+  .dc-cta::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: -40px;
+    width: 150px; height: 150px;
+    background: rgba(6,182,212,.15);
+    border-radius: 50%;
+  }
+  .dc-cta h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: .75rem;
+    position: relative; z-index: 1;
+  }
+  .dc-cta p {
+    font-size: 1rem;
+    color: rgba(255,255,255,.7);
+    max-width: 480px;
+    margin: 0 auto 1.75rem;
+    line-height: 1.6;
+    position: relative; z-index: 1;
+  }
+  .dc-cta .btn { position: relative; z-index: 1; }
+  .btn-white {
+    background: #fff;
+    color: var(--primary);
+    font-weight: 700;
+  }
+  .btn-white:hover { background: #f1f5f9; color: var(--primary-dk); }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .dc-hero { flex-direction: column; padding: 2rem 0 1.5rem; }
+    .dc-hero-right { flex: none; max-width: 100%; width: 100%; min-height: 200px; }
+    .dc-hero-left h1 { font-size: 2rem; }
+    .dc-features { grid-template-columns: 1fr; }
+    .dc-search-field { border-right: none; border-bottom: 1.5px solid var(--border); padding-bottom: .5rem; }
+    .dc-search-field:last-of-type { border-bottom: none; }
+  }
+</style>
+
+{% if user.is_authenticated %}
+<div class="dc-welcome">
+  <span>👋 Welcome back, <strong>{{ user.username }}</strong>! Ready to ride today?</span>
+  <a href="{% url 'create_ride' %}" class="btn btn-primary" style="font-size:.875rem; padding:.4rem .9rem;">+ Create Ride</a>
 </div>
 {% else %}
-<div class="welcome-bar">
-    👋 Welcome back, <strong>{{ user.username }}</strong>! Ready to ride today?
+<!-- Hero (logged out) -->
+<div class="dc-hero">
+  <div class="dc-hero-left">
+    <h1>Commute smarter.<br><span>Share the ride.</span></h1>
+    <p>Find daily commute partners going your way. Save money, cut traffic, and travel with people you can trust.</p>
+    <div class="dc-hero-actions">
+      <a href="{% url 'signup' %}" class="btn btn-primary" style="padding:.7rem 1.75rem; font-size:1rem;">Get Started</a>
+      <a href="{% url 'login' %}" class="btn btn-outline" style="padding:.7rem 1.75rem; font-size:1rem;">Login</a>
+    </div>
+  </div>
+  <div class="dc-hero-right">
+    <div class="dc-hero-illustration">
+      <svg viewBox="0 0 320 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Road -->
+        <rect x="40" y="150" width="240" height="40" rx="6" fill="#c7d2fe"/>
+        <rect x="150" y="162" width="20" height="8" rx="2" fill="#fff" opacity=".7"/>
+        <!-- Car body -->
+        <rect x="80" y="110" width="160" height="55" rx="14" fill="#4f46e5"/>
+        <!-- Cabin -->
+        <rect x="105" y="85" width="110" height="40" rx="10" fill="#6366f1"/>
+        <!-- Windows -->
+        <rect x="115" y="92" width="38" height="24" rx="5" fill="#a5b4fc" opacity=".8"/>
+        <rect x="165" y="92" width="38" height="24" rx="5" fill="#a5b4fc" opacity=".8"/>
+        <!-- Wheels -->
+        <circle cx="115" cy="165" r="18" fill="#1e1b4b"/>
+        <circle cx="115" cy="165" r="9" fill="#c7d2fe"/>
+        <circle cx="205" cy="165" r="18" fill="#1e1b4b"/>
+        <circle cx="205" cy="165" r="9" fill="#c7d2fe"/>
+        <!-- People silhouettes -->
+        <circle cx="134" cy="96" r="7" fill="#fff" opacity=".9"/>
+        <circle cx="186" cy="96" r="7" fill="#fff" opacity=".9"/>
+        <!-- Route dots -->
+        <circle cx="60" cy="60" r="8" fill="#4f46e5"/>
+        <circle cx="60" cy="60" r="4" fill="#fff"/>
+        <line x1="60" y1="68" x2="60" y2="100" stroke="#4f46e5" stroke-width="2" stroke-dasharray="4 3"/>
+        <circle cx="260" cy="60" r="8" fill="#06b6d4"/>
+        <circle cx="260" cy="60" r="4" fill="#fff"/>
+        <line x1="260" y1="68" x2="260" y2="100" stroke="#06b6d4" stroke-width="2" stroke-dasharray="4 3"/>
+        <!-- Labels -->
+        <rect x="30" y="38" width="60" height="18" rx="5" fill="#ede9fe"/>
+        <rect x="230" y="38" width="60" height="18" rx="5" fill="#cffafe"/>
+        <!-- Rupee badge -->
+        <rect x="138" y="42" width="44" height="22" rx="11" fill="#fef9c3"/>
+        <text x="160" y="57" text-anchor="middle" font-size="11" font-weight="700" fill="#854d0e">₹ Save</text>
+      </svg>
+    </div>
+  </div>
 </div>
 {% endif %}
+
 <!-- Search Bar -->
-<form method="GET" action="{% url 'home' %}">
-    <div class="search-bar">
-        <input type="text" name="source" placeholder="🔍 From..." value="{{ source }}">
-        <input type="text" name="destination" placeholder="📍 To..." value="{{ destination }}">
-        <input type="date" name="date" value="{{ date }}">
-        <button type="submit" class="btn btn-primary">Search</button>
-        <a href="{% url 'home' %}" class="btn btn-outline">Clear</a>
+<div id="location-status" class="dc-location-status"></div>
+<div class="dc-search-wrap">
+  <form method="GET" action="{% url 'home' %}" style="display:contents;">
+    <div class="dc-search-field">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" name="source" id="source-input" placeholder="Leaving from..." value="{{ source }}">
     </div>
-</form>
-<h1 class="page-title">Available Rides</h1>
+    <div class="dc-search-field">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      <input type="text" name="destination" placeholder="Going to..." value="{{ destination }}">
+    </div>
+    <div class="dc-search-field">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <input type="date" name="date" value="{{ date }}">
+    </div>
+    <div class="dc-search-actions">
+      <button type="button" class="dc-location-btn" id="locate-btn" title="Use my location">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+        Near me
+      </button>
+      <button type="submit" class="btn btn-primary" style="padding:.5rem 1.25rem;">Search</button>
+      <a href="{% url 'home' %}" class="btn btn-outline" style="padding:.5rem 1rem;">Clear</a>
+    </div>
+  </form>
+</div>
+
+{% if not user.is_authenticated %}
+<!-- Features Strip -->
+<div class="dc-features">
+  <div class="dc-feature">
+    <div class="dc-feature-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+    </div>
+    <h3>Commute everywhere</h3>
+    <p>Find rides across Hyderabad and beyond — for your daily office or college commute.</p>
+  </div>
+  <div class="dc-feature">
+    <div class="dc-feature-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    </div>
+    <h3>Split the cost</h3>
+    <p>Shared rides mean lower costs for everyone. Pay only your fair share, nothing more.</p>
+  </div>
+  <div class="dc-feature">
+    <div class="dc-feature-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </div>
+    <h3>Ride with trust</h3>
+    <p>Travel with verified college and office commuters from your own community.</p>
+  </div>
+</div>
+{% endif %}
+
+{% if user.is_authenticated %}
+<!-- Available Rides -->
+<div class="dc-section-header">
+  <h2>Available Rides</h2>
+  {% if rides %}
+  <span class="dc-ride-count">{{ rides|length }} ride{{ rides|length|pluralize }} found</span>
+  {% endif %}
+</div>
 
 {% if rides %}
-    <div class="rides-list">
-        {% for ride in rides %}
-            <div class="card">
-                <div class="card-info">
-                    <div class="card-route">{{ ride.source }} &rarr; {{ ride.destination }}</div>
-                    <span class="badge badge-info" style="background: #e0f2fe; color: #0284c7;">📅 {{ ride.date }}</span>
-                    <span class="badge {% if ride.seats_available > 0 %}badge-green{% else %}badge-red{% endif %}">
-                        💺 {{ ride.seats_available }} seats left
-                    </span>
-                    <span class="badge">💰 ₹{{ ride.price }}</span>
-                </div>
-                <div class="card-action">
-                    {% if user.is_authenticated %}
-                        {% if ride.driver == user %}
-                            <form method="POST" action="{% url 'delete_ride' ride.id %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-danger"
-                                    onclick="return confirm('Delete this ride? All bookings will be removed.')">
-                                    Delete Ride
-                                </button>
-                            </form>
-                        {% elif ride.id in booked_rides %}
-                            <button class="btn btn-booked" disabled>Already Booked</button>
-                        {% elif ride.seats_available > 0 %}
-                            <a href="{% url 'book_ride' ride.id %}" class="btn btn-primary">Book Ride</a>
-                        {% else %}
-                            <button class="btn btn-booked" disabled>Fully Booked</button>
-                        {% endif %}
-                    {% else %}
-                        <a href="{% url 'login' %}" class="btn btn-outline">Login to Book</a>
-                    {% endif %}
-                </div>
-            </div>
-        {% endfor %}
+<div class="dc-rides-grid">
+  {% for ride in rides %}
+  <div class="dc-ride-card">
+    <div class="dc-ride-left">
+      <div class="dc-ride-route">
+        {{ ride.source }}
+        <span class="dc-ride-route-arrow">→</span>
+        {{ ride.destination }}
+      </div>
+      <div class="dc-ride-meta">
+        <span class="dc-badge dc-badge-date">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          {{ ride.date }}
+        </span>
+        <span class="dc-badge {% if ride.seats_available > 0 %}dc-badge-seats-ok{% else %}dc-badge-seats-no{% endif %}">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          {% if ride.seats_available > 0 %}{{ ride.seats_available }} seat{{ ride.seats_available|pluralize }} left{% else %}Full{% endif %}
+        </span>
+        <span class="dc-badge dc-badge-price">
+  ₹{{ ride.price }}
+</span>
+      </div>
+      <div class="dc-ride-driver">
+        <span class="dc-driver-avatar">{{ ride.driver.username|first|upper }}</span>
+        {{ ride.driver.username }}
+      </div>
     </div>
+    <div class="dc-ride-action">
+      {% if user.is_authenticated %}
+        {% if ride.driver == user %}
+          <form method="POST" action="{% url 'delete_ride' ride.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger"
+              onclick="return confirm('Delete this ride? All bookings will be removed.')">
+              Delete Ride
+            </button>
+          </form>
+        {% elif ride.id in booked_rides %}
+          <button class="btn btn-booked" disabled>Already Booked</button>
+        {% elif ride.seats_available > 0 %}
+          <a href="{% url 'book_ride' ride.id %}" class="btn btn-primary">Book Ride</a>
+        {% else %}
+          <button class="btn btn-booked" disabled>Fully Booked</button>
+        {% endif %}
+      {% else %}
+        <a href="{% url 'login' %}" class="btn btn-outline">Login to Book</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
 {% else %}
-    <div class="empty">
-        <h2>No rides available</h2>
-        <p>Check back later or create a new ride!</p>
-    </div>
+<div class="dc-empty">
+  <div class="dc-empty-icon">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+  </div>
+  <h3>No rides found</h3>
+  <p>Try a different route or date, or be the first to create one!</p>
+  {% if user.is_authenticated %}
+  <a href="{% url 'create_ride' %}" class="btn btn-primary">Create a Ride</a>
+  {% else %}
+  <a href="{% url 'signup' %}" class="btn btn-primary">Get Started</a>
+  {% endif %}
+</div>
 {% endif %}
+
+<!-- CTA Banner -->
+{% if user.is_authenticated %}
+<div class="dc-cta">
+  <h2>Have a seat to spare?</h2>
+  <p>Share your daily commute and split the fuel cost with fellow commuters going your way.</p>
+  <a href="{% url 'create_ride' %}" class="btn btn-white" style="padding:.75rem 2rem; font-size:1rem;">Offer a Ride</a>
+</div>
+{% else %}
+<div class="dc-cta">
+  <h2>Share your ride. Cut your costs.</h2>
+  <p>Join DailyCom and start sharing your daily commute with people going your way.</p>
+  <a href="{% url 'signup' %}" class="btn btn-white" style="padding:.75rem 2rem; font-size:1rem;">Join for Free</a>
+</div>
+{% endif %}
+
+{% endif %}
+
+<script>
+(function() {
+  const locBtn = document.getElementById('locate-btn');
+  const sourceInput = document.getElementById('source-input');
+  const statusEl = document.getElementById('location-status');
+
+  function setStatus(msg, type) {
+    statusEl.textContent = msg;
+    statusEl.className = 'dc-location-status' + (type ? ' ' + type : '');
+  }
+
+  async function getPlaceName(lat, lng) {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+      );
+      const data = await res.json();
+      return (
+        data.address.suburb ||
+        data.address.neighbourhood ||
+        data.address.city_district ||
+        data.address.city ||
+        data.address.town ||
+        data.display_name.split(',')[0]
+      );
+    } catch(e) {
+      return null;
+    }
+  }
+
+  async function filterNearbyRides(lat, lng) {
+    const form = sourceInput.closest('form');
+    if (form && !sourceInput.value) return;
+    form.submit();
+  }
+
+  locBtn.addEventListener('click', function() {
+    if (!navigator.geolocation) {
+      setStatus('Geolocation not supported by your browser.', 'error');
+      return;
+    }
+    setStatus('Detecting your location...');
+    locBtn.disabled = true;
+    navigator.geolocation.getCurrentPosition(
+      async function(pos) {
+        const { latitude: lat, longitude: lng } = pos.coords;
+        setStatus('Getting area name...');
+        const name = await getPlaceName(lat, lng);
+        if (name) {
+          sourceInput.value = name;
+          setStatus('Location detected: ' + name + ' — hit Search to find nearby rides.', 'success');
+        } else {
+          setStatus('Location found but could not resolve area name.', 'error');
+        }
+        locBtn.disabled = false;
+      },
+      function(err) {
+        const msgs = {
+          1: 'Location permission denied. Please allow access in your browser.',
+          2: 'Location unavailable. Try again.',
+          3: 'Location request timed out.'
+        };
+        setStatus(msgs[err.code] || 'Could not get location.', 'error');
+        locBtn.disabled = false;
+      },
+      { timeout: 10000, enableHighAccuracy: true }
+    );
+  });
+
+  // Auto-request on page load (quietly, no prompt spam)
+  if (navigator.geolocation && !sourceInput.value) {
+    navigator.geolocation.getCurrentPosition(
+      async function(pos) {
+        const { latitude: lat, longitude: lng } = pos.coords;
+        const name = await getPlaceName(lat, lng);
+        if (name && !sourceInput.value) {
+          sourceInput.value = name;
+          setStatus('Showing rides near ' + name, 'success');
+        }
+      },
+      function() {},
+      { timeout: 8000, enableHighAccuracy: false }
+    );
+  }
+})();
+</script>
+
 {% endblock %}

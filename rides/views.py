@@ -17,22 +17,6 @@ def signup(request):
         form = UserCreationForm()
     return render(request, 'registration/signup.html', {'form': form})
 
-
-def home(request):
-    rides = Ride.objects.all()
-
-    booked_rides = []
-    if request.user.is_authenticated:
-        booked_rides = Booking.objects.filter(
-            user=request.user
-        ).values_list('ride_id', flat=True)
-
-    return render(request, 'home.html', {
-        'rides': rides,
-        'booked_rides': booked_rides
-    })
-
-
 @login_required
 def create_ride(request):
     if request.method == 'POST':

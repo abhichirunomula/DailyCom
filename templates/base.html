@@ -2,42 +2,317 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}DailyCom{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <script>
-        function initMaps() {
-            window._mapsReady = true;
-            document.dispatchEvent(new Event('maps:ready'));
-        }
-    </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key="YOUR_API_KEY"&libraries=places&callback=initMaps" async defer></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}DailyCom{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <nav>
-        <div class="nav-inner">
-            <a href="{% url 'home' %}" class="nav-brand">DailyCom</a>
-            <div class="nav-links">
-                {% if user.is_authenticated %}
-                <span style="font-size: .9rem; font-weight: 500; color: var(--muted); margin-right: 0.5rem;">Welcome, {{ user.username }}</span>
-                <a href="{% url 'my_bookings' %}">My Bookings</a>
-                <a href="{% url 'create_ride' %}" class="btn-nav" style="border-radius: 8px; text-decoration: none;">Create Ride</a>
-                <form action="{% url 'logout' %}" method="post" style="display:inline; margin: 0; padding: 0;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-nav" style="background: #ef4444; border: none; font-size: 0.9rem; font-weight: 500; color: #ffffff; padding: .35rem .7rem; border-radius: 8px; cursor: pointer; font-family: inherit;">Logout</button>
-                </form>
-                {% else %}
-                <a href="{% url 'login' %}">Login</a>
-                <a href="{% url 'signup' %}" class="btn-nav" style="border-radius: 8px; text-decoration: none;">Sign Up</a>
-                {% endif %}
-            </div>
-        </div>
-    </nav>
 
-    <div class="container">
-        {% block content %}
-        {% endblock %}
+<nav class="dc-nav">
+  <div class="dc-nav-inner">
+
+    <!-- Brand -->
+    <a href="{% url 'home' %}" class="dc-nav-brand">
+      <div class="dc-nav-brand-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+          <circle cx="12" cy="9" r="2.5"/>
+        </svg>
+      </div>
+      DailyCom
+    </a>
+
+    {% if user.is_authenticated %}
+    <!-- Logged in nav -->
+    <div class="dc-nav-links">
+      <a href="{% url 'home' %}" class="dc-nav-link">Browse Rides</a>
+      <a href="{% url 'my_bookings' %}" class="dc-nav-link">My Bookings</a>
+      <a href="{% url 'create_ride' %}" class="dc-nav-cta">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Offer a Ride
+      </a>
+      <!-- User menu -->
+      <div class="dc-user-menu" id="userMenu">
+        <button class="dc-user-btn" id="userBtn" onclick="toggleUserMenu()">
+          <div class="dc-user-avatar">{{ user.username|first|upper }}</div>
+          <span class="dc-user-name">{{ user.username }}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="dc-chevron"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dc-user-dropdown" id="userDropdown">
+          <div class="dc-dropdown-header">
+            <div class="dc-dropdown-avatar">{{ user.username|first|upper }}</div>
+            <div>
+              <div class="dc-dropdown-name">{{ user.username }}</div>
+              <div class="dc-dropdown-email">{{ user.email }}</div>
+            </div>
+          </div>
+          <div class="dc-dropdown-divider"></div>
+          <a href="{% url 'my_bookings' %}" class="dc-dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+            My Bookings
+          </a>
+          <a href="{% url 'create_ride' %}" class="dc-dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            Offer a Ride
+          </a>
+          <div class="dc-dropdown-divider"></div>
+          <form action="{% url 'logout' %}" method="post" style="margin:0;">
+            {% csrf_token %}
+            <button type="submit" class="dc-dropdown-item dc-dropdown-logout">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Logout
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
+
+    {% else %}
+    <!-- Logged out nav -->
+    <div class="dc-nav-links">
+      <a href="{% url 'home' %}" class="dc-nav-link">Home</a>
+      <a href="{% url 'login' %}" class="dc-nav-link">Login</a>
+      <a href="{% url 'signup' %}" class="dc-nav-cta">
+        Get Started
+      </a>
+    </div>
+    {% endif %}
+
+  </div>
+</nav>
+
+<div class="container">
+  {% if messages %}
+  {% for message in messages %}
+  <div class="dc-alert dc-alert-{{ message.tags }}">{{ message }}</div>
+  {% endfor %}
+  {% endif %}
+  {% block content %}{% endblock %}
+</div>
+
+<style>
+  /* ── Navbar ── */
+  .dc-nav {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    box-shadow: 0 1px 12px rgba(79,70,229,.07);
+  }
+  .dc-nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  /* Brand */
+  .dc-nav-brand {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: -.5px;
+    text-decoration: none;
+  }
+  .dc-nav-brand:hover { text-decoration: none; color: var(--primary-dk); }
+  .dc-nav-brand-icon {
+    width: 30px;
+    height: 30px;
+    background: var(--primary);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Links */
+  .dc-nav-links {
+    display: flex;
+    align-items: center;
+    gap: .25rem;
+  }
+  .dc-nav-link {
+    font-size: .9rem;
+    font-weight: 500;
+    color: var(--muted);
+    padding: .45rem .85rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background .15s, color .15s;
+  }
+  .dc-nav-link:hover {
+    background: #f1f5f9;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .dc-nav-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    background: var(--primary);
+    color: #fff !important;
+    font-size: .875rem;
+    font-weight: 700;
+    padding: .5rem 1.1rem;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: background .15s, transform .1s;
+    margin-left: .25rem;
+  }
+  .dc-nav-cta:hover {
+    background: var(--primary-dk);
+    text-decoration: none;
+    transform: translateY(-1px);
+  }
+
+  /* User menu */
+  .dc-user-menu { position: relative; margin-left: .25rem; }
+  .dc-user-btn {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    background: #f8fafc;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: .4rem .75rem .4rem .4rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .15s, border-color .15s;
+  }
+  .dc-user-btn:hover { background: #f1f5f9; border-color: #c7d2fe; }
+  .dc-user-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--primary);
+    color: #fff;
+    font-size: .8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .dc-user-name {
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--text);
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .dc-chevron { color: var(--muted); transition: transform .2s; }
+  .dc-user-menu.open .dc-chevron { transform: rotate(180deg); }
+
+  /* Dropdown */
+  .dc-user-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(79,70,229,.13);
+    min-width: 220px;
+    overflow: hidden;
+    z-index: 300;
+  }
+  .dc-user-menu.open .dc-user-dropdown { display: block; }
+  .dc-dropdown-header {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: 1rem 1.1rem;
+    background: #fafafa;
+  }
+  .dc-dropdown-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--primary);
+    color: #fff;
+    font-size: .95rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .dc-dropdown-name {
+    font-size: .9rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .dc-dropdown-email {
+    font-size: .775rem;
+    color: var(--muted);
+    margin-top: .1rem;
+    word-break: break-all;
+  }
+  .dc-dropdown-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0;
+  }
+  .dc-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .75rem 1.1rem;
+    font-size: .875rem;
+    font-weight: 500;
+    color: var(--text);
+    text-decoration: none;
+    transition: background .15s;
+    width: 100%;
+    background: transparent;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: left;
+  }
+  .dc-dropdown-item:hover { background: #f8fafc; text-decoration: none; }
+  .dc-dropdown-item svg { color: var(--muted); flex-shrink: 0; }
+  .dc-dropdown-logout { color: #dc2626 !important; }
+  .dc-dropdown-logout svg { color: #dc2626; }
+  .dc-dropdown-logout:hover { background: #fee2e2; }
+
+  /* Alerts */
+  .dc-alert {
+    padding: .75rem 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    font-size: .9rem;
+  }
+  .dc-alert-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+  .dc-alert-error, .dc-alert-warning { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+  .dc-alert-info { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+</style>
+
+<script>
+  function toggleUserMenu() {
+    const menu = document.getElementById('userMenu');
+    menu.classList.toggle('open');
+  }
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('userMenu');
+    if (menu && !menu.contains(e.target)) {
+      menu.classList.remove('open');
+    }
+  });
+</script>
+
 </body>
 </html>

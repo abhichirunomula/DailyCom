@@ -1,19 +1,184 @@
 {% extends "base.html" %}
-
-{% block title %}Login - DailyCom{% endblock %}
-
+{% block title %}Login – DailyCom{% endblock %}
 {% block content %}
-<div class="form-card">
-    <h2>Login to DailyCom 🚗</h2>
-    <form method="POST">
-        {% csrf_token %}
-        <div style="margin-bottom: 1.5rem;">
-            {{ form.as_p }}
-        </div>
-        <button type="submit" class="btn btn-primary">Login</button>
-    </form>
-    <div class="form-footer">
-        <p>Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
+
+<style>
+  .auth-wrap {
+    min-height: 75vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+  .auth-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(79,70,229,.10);
+    width: 100%;
+    max-width: 440px;
+    overflow: hidden;
+  }
+  .auth-card-top {
+    background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+    padding: 2.25rem 2rem 2rem;
+    text-align: center;
+  }
+  .auth-logo {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -.5px;
+    margin-bottom: .5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+  }
+  .auth-logo-dot {
+    width: 10px;
+    height: 10px;
+    background: rgba(255,255,255,.6);
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .auth-card-top h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: .35rem;
+  }
+  .auth-card-top p {
+    font-size: .875rem;
+    color: rgba(255,255,255,.75);
+  }
+  .auth-card-body { padding: 2rem; }
+  .auth-field { margin-bottom: 1.25rem; }
+  .auth-field label {
+    display: block;
+    font-size: .82rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: .45rem;
+  }
+  .auth-field input {
+    width: 100%;
+    padding: .7rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: .95rem;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .auth-field input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(79,70,229,.12);
+  }
+  .auth-field .errorlist {
+    list-style: none;
+    margin-top: .4rem;
+    font-size: .8rem;
+    color: #dc2626;
+  }
+  .auth-submit {
+    width: 100%;
+    padding: .8rem;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+    margin-top: .25rem;
+  }
+  .auth-submit:hover { background: var(--primary-dk); transform: translateY(-1px); }
+  .auth-submit:active { transform: translateY(0); }
+  .auth-divider {
+    text-align: center;
+    margin: 1.25rem 0;
+    position: relative;
+    color: var(--muted);
+    font-size: .82rem;
+  }
+  .auth-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 0;
+    width: 100%; height: 1px;
+    background: var(--border);
+  }
+  .auth-divider span {
+    background: #fff;
+    padding: 0 .75rem;
+    position: relative;
+  }
+  .auth-footer {
+    text-align: center;
+    font-size: .875rem;
+    color: var(--muted);
+    margin-top: 1.25rem;
+  }
+  .auth-footer a { font-weight: 700; color: var(--primary); }
+  .auth-footer a:hover { text-decoration: underline; }
+  .auth-errors {
+    background: #fee2e2;
+    border: 1px solid #fca5a5;
+    border-radius: 10px;
+    padding: .75rem 1rem;
+    margin-bottom: 1.25rem;
+    font-size: .875rem;
+    color: #991b1b;
+  }
+</style>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-card-top">
+      <div class="auth-logo">
+        <span class="auth-logo-dot"></span>
+        DailyCom
+        <span class="auth-logo-dot"></span>
+      </div>
+      <h2>Welcome back!</h2>
+      <p>Login to find and join your daily commute</p>
     </div>
+    <div class="auth-card-body">
+      {% if form.non_field_errors %}
+      <div class="auth-errors">
+        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+      </div>
+      {% endif %}
+
+      <form method="POST">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="auth-field">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+          <ul class="errorlist">
+            {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="auth-submit">Login to DailyCom</button>
+      </form>
+
+      <div class="auth-divider"><span>Don't have an account?</span></div>
+      <div class="auth-footer">
+        <a href="{% url 'signup' %}">Create a free account →</a>
+      </div>
+    </div>
+  </div>
 </div>
+
 {% endblock %}

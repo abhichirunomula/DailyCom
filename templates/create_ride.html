@@ -1,84 +1,361 @@
 {% extends 'base.html' %}
+{% block title %}Offer a Ride – DailyCom{% endblock %}
 {% block content %}
 
-<!-- MapLibre CSS & JS -->
-<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+<!-- MapLibre -->
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet"/>
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 
 <style>
-  #map {
-    height: 420px;
-    border-radius: 12px;
-    margin-bottom: 1rem;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
+  .cr-wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 2rem 0 4rem;
   }
-  .map-instructions {
-    background: #ede9fe;
-    color: var(--primary);
-    border-radius: 8px;
-    padding: .75rem 1rem;
-    font-size: .875rem;
-    margin-bottom: 1rem;
+
+  /* ── Page Header ── */
+  .cr-header {
+    margin-bottom: 2rem;
   }
-  .map-legend {
-    display: flex;
-    gap: 1.5rem;
-    font-size: .82rem;
-    margin-bottom: 1rem;
+  .cr-header h1 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -.5px;
+    margin-bottom: .3rem;
+  }
+  .cr-header p {
+    font-size: .95rem;
     color: var(--muted);
-    align-items: center;
   }
-  .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
-  .dot-green { background: #22c55e; }
-  .dot-red { background: #ef4444; }
-  .reset-btn {
+
+  /* ── Steps indicator ── */
+  .cr-steps {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 2rem;
+  }
+  .cr-step {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .cr-step.active { color: var(--primary); }
+  .cr-step.done { color: #16a34a; }
+  .cr-step-num {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .78rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    background: #fff;
+  }
+  .cr-step.active .cr-step-num {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #fff;
+  }
+  .cr-step.done .cr-step-num {
+    border-color: #16a34a;
+    background: #16a34a;
+    color: #fff;
+  }
+  .cr-step-line {
+    flex: 1;
+    height: 2px;
+    background: var(--border);
+    margin: 0 .5rem;
+  }
+
+  /* ── Card ── */
+  .cr-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(79,70,229,.08);
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+  }
+  .cr-card-header {
+    padding: 1.1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    background: #fafafa;
+  }
+  .cr-card-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: #ede9fe;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .cr-card-header h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+  }
+  .cr-card-header p {
+    font-size: .8rem;
+    color: var(--muted);
+    margin: 0;
+  }
+  .cr-card-body { padding: 1.5rem; }
+
+  /* ── Map ── */
+  #map {
+    height: 380px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    margin-bottom: 1rem;
+  }
+  .cr-map-legend {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    font-size: .8rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  .cr-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  .cr-reset-btn {
     margin-left: auto;
     font-size: .8rem;
-    padding: .25rem .75rem;
-    border-radius: 6px;
-    border: 1.5px solid var(--primary);
-    color: var(--primary);
+    padding: .3rem .85rem;
+    border-radius: 7px;
+    border: 1.5px solid var(--border);
+    color: var(--muted);
     background: transparent;
     cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    transition: border-color .15s, color .15s;
+    display: flex;
+    align-items: center;
+    gap: .35rem;
   }
-  .reset-btn:hover { background: #ede9fe; }
+  .cr-reset-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .cr-map-tip {
+    background: #ede9fe;
+    color: var(--primary);
+    border-radius: 9px;
+    padding: .6rem 1rem;
+    font-size: .82rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+
+  /* ── Form fields ── */
+  .cr-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.1rem;
+  }
+  .cr-form-grid .cr-field-full { grid-column: 1 / -1; }
+  .cr-field { display: flex; flex-direction: column; gap: .4rem; }
+  .cr-field label {
+    font-size: .8rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  .cr-field input,
+  .cr-field select {
+    padding: .65rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: .95rem;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .cr-field input:focus,
+  .cr-field select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(79,70,229,.12);
+  }
+  .cr-field .errorlist {
+    list-style: none;
+    font-size: .8rem;
+    color: #dc2626;
+    margin: 0;
+  }
+
+  /* ── Submit ── */
+  .cr-submit-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+  }
+  .cr-submit-note {
+    font-size: .82rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+  }
+  .cr-submit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .75rem 2rem;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .cr-submit-btn:hover { background: var(--primary-dk); transform: translateY(-1px); }
+
+  @media (max-width: 600px) {
+    .cr-form-grid { grid-template-columns: 1fr; }
+    .cr-form-grid .cr-field-full { grid-column: 1; }
+    #map { height: 280px; }
+  }
 </style>
 
-<div class="form-card" style="max-width: 720px;">
-  <h2>Create a Ride 🚗</h2>
+<div class="cr-wrap">
 
-  <div class="map-instructions">
-    🟢 <strong>1st click</strong> = Source &nbsp;|&nbsp; 🔴 <strong>2nd click</strong> = Destination
+  <!-- Header -->
+  <div class="cr-header">
+    <h1>Offer a Ride</h1>
+    <p>Share your daily commute and split the cost with fellow commuters</p>
   </div>
 
-  <div class="map-legend">
-    <span><span class="dot dot-green"></span>Source</span>
-    <span><span class="dot dot-red"></span>Destination</span>
-    <button class="reset-btn" onclick="resetMap()">🔄 Reset</button>
-  </div>
-
-  <div id="map"></div>
-
-  <form method="POST">
-    {% csrf_token %}
-    <div style="margin-bottom: 1.5rem;">
-      {{ form.as_p }}
+  <!-- Steps -->
+  <div class="cr-steps">
+    <div class="cr-step active">
+      <div class="cr-step-num">1</div>
+      Pick Route
     </div>
-    <button type="submit" class="btn btn-primary">Create Ride</button>
+    <div class="cr-step-line"></div>
+    <div class="cr-step active">
+      <div class="cr-step-num">2</div>
+      Ride Details
+    </div>
+    <div class="cr-step-line"></div>
+    <div class="cr-step">
+      <div class="cr-step-num">3</div>
+      Confirm
+    </div>
+  </div>
+
+  <form method="POST" id="createRideForm">
+    {% csrf_token %}
+
+    <!-- Map Card -->
+    <div class="cr-card">
+      <div class="cr-card-header">
+        <div class="cr-card-icon">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        </div>
+        <div>
+          <h3>Select Your Route</h3>
+          <p>Click on the map to set source and destination</p>
+        </div>
+      </div>
+      <div class="cr-card-body">
+        <div class="cr-map-tip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          1st click = Source &nbsp;·&nbsp; 2nd click = Destination &nbsp;·&nbsp; Use the location button to auto-detect your position
+        </div>
+        <div class="cr-map-legend">
+          <span><span class="cr-legend-dot" style="background:#22c55e;"></span>Source</span>
+          <span><span class="cr-legend-dot" style="background:#ef4444;"></span>Destination</span>
+          <button type="button" class="cr-reset-btn" onclick="resetMap()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+            Reset Map
+          </button>
+        </div>
+        <div id="map"></div>
+      </div>
+    </div>
+
+    <!-- Details Card -->
+    <div class="cr-card">
+      <div class="cr-card-header">
+        <div class="cr-card-icon">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div>
+          <h3>Ride Details</h3>
+          <p>Fill in the date, seats, and price</p>
+        </div>
+      </div>
+      <div class="cr-card-body">
+        <div class="cr-form-grid">
+          {% for field in form %}
+          <div class="cr-field {% if field.name == 'source' or field.name == 'destination' %}cr-field-full{% endif %}">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+            <ul class="errorlist">
+              {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="cr-submit-wrap">
+          <div class="cr-submit-note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Your ride will be visible to all commuters
+          </div>
+          <button type="submit" class="cr-submit-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            Publish Ride
+          </button>
+        </div>
+      </div>
+    </div>
+
   </form>
 </div>
 
 <script>
-  // ── Init MapLibre map ──
   const map = new maplibregl.Map({
     container: 'map',
-    style: 'https://tiles.openfreemap.org/styles/liberty', // Free tiles, no key!
-    center: [78.4867, 17.3850], // Hyderabad
+    style: 'https://tiles.openfreemap.org/styles/liberty',
+    center: [78.4867, 17.3850],
     zoom: 11
   });
 
-  // ── Built-in Geolocate button (uses browser Geolocation API) ──
   const geolocate = new maplibregl.GeolocateControl({
     positionOptions: { enableHighAccuracy: true },
     trackUserLocation: false,
@@ -87,102 +364,82 @@
   map.addControl(geolocate);
   map.addControl(new maplibregl.NavigationControl());
 
-  let sourceMarker = null, destMarker = null;
-  let clickCount = 0;
+  let sourceMarker = null, destMarker = null, clickCount = 0;
 
-  // ── Reverse geocode with Nominatim (free) ──
   async function getPlaceName(lng, lat) {
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
-    );
-    const data = await res.json();
-    return (
-      data.address.suburb ||
-      data.address.city ||
-      data.address.town ||
-      data.address.village ||
-      data.display_name.split(',')[0]
-    );
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+      );
+      const data = await res.json();
+      return (
+        data.address.suburb ||
+        data.address.neighbourhood ||
+        data.address.city_district ||
+        data.address.city ||
+        data.address.town ||
+        data.address.village ||
+        data.display_name.split(',')[0]
+      );
+    } catch(e) { return null; }
   }
 
-  // ── When geolocate fires, fill Source field ──
   geolocate.on('geolocate', async (e) => {
     const lng = e.coords.longitude;
     const lat = e.coords.latitude;
-
     if (sourceMarker) sourceMarker.remove();
     sourceMarker = new maplibregl.Marker({ color: '#22c55e' })
       .setLngLat([lng, lat])
-      .setPopup(new maplibregl.Popup().setText('📍 Your Location (Source)'))
+      .setPopup(new maplibregl.Popup().setText('Your Location (Source)'))
       .addTo(map);
-
     const name = await getPlaceName(lng, lat);
-    document.querySelector('input[name="source"]').value = name;
-    clickCount = 1; // Next click will set destination
+    if (name) document.querySelector('input[name="source"]').value = name;
+    clickCount = 1;
   });
 
-  // ── Map click handler ──
   map.on('click', async (e) => {
     const { lng, lat } = e.lngLat;
     clickCount++;
-
     if (clickCount === 1) {
-      // Source
       if (sourceMarker) sourceMarker.remove();
       sourceMarker = new maplibregl.Marker({ color: '#22c55e' })
         .setLngLat([lng, lat])
-        .setPopup(new maplibregl.Popup().setText('🟢 Source'))
+        .setPopup(new maplibregl.Popup().setText('Source'))
         .addTo(map);
-
       const name = await getPlaceName(lng, lat);
-      document.querySelector('input[name="source"]').value = name;
-
+      if (name) document.querySelector('input[name="source"]').value = name;
     } else if (clickCount === 2) {
-      // Destination
       if (destMarker) destMarker.remove();
       destMarker = new maplibregl.Marker({ color: '#ef4444' })
         .setLngLat([lng, lat])
-        .setPopup(new maplibregl.Popup().setText('🔴 Destination'))
+        .setPopup(new maplibregl.Popup().setText('Destination'))
         .addTo(map);
-
       const name = await getPlaceName(lng, lat);
-      document.querySelector('input[name="destination"]').value = name;
+      if (name) document.querySelector('input[name="destination"]').value = name;
 
-      // Draw line between source and destination
       if (map.getSource('route')) {
         map.getSource('route').setData({
           type: 'Feature',
-          geometry: {
-            type: 'LineString',
-            coordinates: [sourceMarker.getLngLat().toArray(), [lng, lat]]
-          }
+          geometry: { type: 'LineString', coordinates: [sourceMarker.getLngLat().toArray(), [lng, lat]] }
         });
       } else {
         map.addSource('route', {
           type: 'geojson',
           data: {
             type: 'Feature',
-            geometry: {
-              type: 'LineString',
-              coordinates: [sourceMarker.getLngLat().toArray(), [lng, lat]]
-            }
+            geometry: { type: 'LineString', coordinates: [sourceMarker.getLngLat().toArray(), [lng, lat]] }
           }
         });
         map.addLayer({
           id: 'route',
           type: 'line',
           source: 'route',
-          paint: {
-            'line-color': '#4f46e5',
-            'line-width': 3,
-            'line-dasharray': [2, 2]
-          }
+          paint: { 'line-color': '#4f46e5', 'line-width': 3, 'line-dasharray': [2, 2] }
         });
       }
     }
   });
 
-  // ── Reset ──
   function resetMap() {
     clickCount = 0;
     if (sourceMarker) { sourceMarker.remove(); sourceMarker = null; }
