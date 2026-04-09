@@ -17,10 +17,6 @@ def signup(request):
         form = UserCreationForm()
     return render(request, 'registration/signup.html', {'form': form})
 
-<<<<<<< HEAD
-=======
-
->>>>>>> d4acbc78e876d755156b353e6e0ad8c409e14340
 @login_required
 def create_ride(request):
     if request.method == 'POST':
