@@ -24,7 +24,6 @@
     </a>
 
     {% if user.is_authenticated %}
-    <!-- Logged in nav -->
     <div class="dc-nav-links">
       <a href="{% url 'home' %}" class="dc-nav-link">Browse Rides</a>
       <a href="{% url 'my_bookings' %}" class="dc-nav-link">My Bookings</a>
@@ -32,7 +31,6 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Offer a Ride
       </a>
-      <!-- User menu -->
       <div class="dc-user-menu" id="userMenu">
         <button class="dc-user-btn" id="userBtn" onclick="toggleUserMenu()">
           <div class="dc-user-avatar">{{ user.username|first|upper }}</div>
@@ -69,13 +67,10 @@
     </div>
 
     {% else %}
-    <!-- Logged out nav -->
     <div class="dc-nav-links">
       <a href="{% url 'home' %}" class="dc-nav-link">Home</a>
       <a href="{% url 'login' %}" class="dc-nav-link">Login</a>
-      <a href="{% url 'signup' %}" class="dc-nav-cta">
-        Get Started
-      </a>
+      <a href="{% url 'signup' %}" class="dc-nav-cta">Get Started</a>
     </div>
     {% endif %}
 
@@ -90,6 +85,7 @@
   {% endif %}
   {% block content %}{% endblock %}
 </div>
+
 <footer class="footer">
   <div class="footer-inner">
     <div class="footer-top">
@@ -103,18 +99,22 @@
         <h4>Navigate</h4>
         <ul>
           <li><a href="{% url 'home' %}">Home</a></li>
+          {% if user.is_authenticated %}
           <li><a href="{% url 'create_ride' %}">Create a Ride</a></li>
           <li><a href="{% url 'my_bookings' %}">My Bookings</a></li>
+          {% else %}
           <li><a href="{% url 'login' %}">Login</a></li>
+          <li><a href="{% url 'signup' %}">Sign Up</a></li>
+          {% endif %}
         </ul>
       </div>
 
       <div class="footer-links">
         <h4>Connect</h4>
         <div class="footer-social">
-          <a href="https://github.com/YOUR_USERNAME" class="social-btn" target="_blank">GitHub</a>
-          <a href="https://linkedin.com/in/YOUR_USERNAME" class="social-btn" target="_blank">LinkedIn</a>
-          <a href="mailto:YOUR@gmail.com" class="social-btn">Gmail</a>
+          <a href="https://github.com/abhichirunomula" class="social-btn" target="_blank">GitHub</a>
+          <a href="https://www.linkedin.com/in/abhiramchirunomula/" class="social-btn" target="_blank">LinkedIn</a>
+          <a href="mailto:abhichirunomula@gmail.com" class="social-btn">Gmail</a>
         </div>
       </div>
 
@@ -146,8 +146,6 @@
     justify-content: space-between;
     gap: 1rem;
   }
-
-  /* Brand */
   .dc-nav-brand {
     display: flex;
     align-items: center;
@@ -169,8 +167,6 @@
     justify-content: center;
     flex-shrink: 0;
   }
-
-  /* Links */
   .dc-nav-links {
     display: flex;
     align-items: center;
@@ -185,16 +181,12 @@
     text-decoration: none;
     transition: background .15s, color .15s;
   }
-  .dc-nav-link:hover {
-    background: #f1f5f9;
-    color: var(--text);
-    text-decoration: none;
-  }
+  .dc-nav-link:hover { background: #f1f5f9; color: var(--text); text-decoration: none; }
   .dc-nav-cta {
     display: inline-flex;
     align-items: center;
     gap: .4rem;
-    background: var(--primary);
+    background: #4f46e5;
     color: #fff !important;
     font-size: .875rem;
     font-weight: 700;
@@ -204,13 +196,7 @@
     transition: background .15s, transform .1s;
     margin-left: .25rem;
   }
-  .dc-nav-cta:hover {
-    background: var(--primary-dk);
-    text-decoration: none;
-    transform: translateY(-1px);
-  }
-
-  /* User menu */
+  .dc-nav-cta:hover { background: #3730a3; text-decoration: none; transform: translateY(-1px); }
   .dc-user-menu { position: relative; margin-left: .25rem; }
   .dc-user-btn {
     display: flex;
@@ -229,7 +215,7 @@
     width: 30px;
     height: 30px;
     border-radius: 8px;
-    background: var(--primary);
+    background: #4f46e5;
     color: #fff;
     font-size: .8rem;
     font-weight: 700;
@@ -249,8 +235,6 @@
   }
   .dc-chevron { color: var(--muted); transition: transform .2s; }
   .dc-user-menu.open .dc-chevron { transform: rotate(180deg); }
-
-  /* Dropdown */
   .dc-user-dropdown {
     display: none;
     position: absolute;
@@ -276,7 +260,7 @@
     width: 38px;
     height: 38px;
     border-radius: 10px;
-    background: var(--primary);
+    background: #4f46e5;
     color: #fff;
     font-size: .95rem;
     font-weight: 700;
@@ -285,22 +269,9 @@
     justify-content: center;
     flex-shrink: 0;
   }
-  .dc-dropdown-name {
-    font-size: .9rem;
-    font-weight: 700;
-    color: var(--text);
-  }
-  .dc-dropdown-email {
-    font-size: .775rem;
-    color: var(--muted);
-    margin-top: .1rem;
-    word-break: break-all;
-  }
-  .dc-dropdown-divider {
-    height: 1px;
-    background: var(--border);
-    margin: 0;
-  }
+  .dc-dropdown-name { font-size: .9rem; font-weight: 700; color: var(--text); }
+  .dc-dropdown-email { font-size: .775rem; color: var(--muted); margin-top: .1rem; word-break: break-all; }
+  .dc-dropdown-divider { height: 1px; background: var(--border); margin: 0; }
   .dc-dropdown-item {
     display: flex;
     align-items: center;
@@ -324,16 +295,54 @@
   .dc-dropdown-logout svg { color: #dc2626; }
   .dc-dropdown-logout:hover { background: #fee2e2; }
 
-  /* Alerts */
-  .dc-alert {
-    padding: .75rem 1rem;
-    border-radius: 10px;
-    margin-bottom: 1rem;
-    font-size: .9rem;
-  }
+  /* ── Alerts ── */
+  .dc-alert { padding: .75rem 1rem; border-radius: 10px; margin-bottom: 1rem; font-size: .9rem; }
   .dc-alert-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
   .dc-alert-error, .dc-alert-warning { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
   .dc-alert-info { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+
+  /* ── Footer ── */
+  .footer {
+    background: #1e293b;
+    color: #94a3b8;
+    padding: 2.5rem 1.5rem 1.5rem;
+    margin-top: 3rem;
+  }
+  .footer-inner { max-width: 1100px; margin: 0 auto; }
+  .footer-top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #334155;
+  }
+  .footer-brand h3 { color: #4f46e5; font-size: 1.25rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .footer-brand p { font-size: 0.85rem; max-width: 220px; line-height: 1.6; color: #94a3b8; }
+  .footer-links h4 { color: #e2e8f0; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .footer-links ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+  .footer-links ul li a { color: #94a3b8; font-size: 0.875rem; text-decoration: none; }
+  .footer-links ul li a:hover { color: #4f46e5; text-decoration: none; }
+  .footer-social { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.25rem; }
+  .social-btn {
+    display: inline-block;
+    padding: 0.4rem 0.85rem;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: #94a3b8;
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+  .social-btn:hover { border-color: #4f46e5; color: #4f46e5; text-decoration: none; }
+  .footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding-top: 1.25rem;
+    font-size: 0.8rem;
+    color: #475569;
+  }
 </style>
 
 <script>
