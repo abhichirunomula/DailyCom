@@ -440,3 +440,45 @@ tr:hover td {
     margin-bottom: 1.5rem;
     border: 1px solid #c7d2fe;
 }
+
+/* ─── Footer ─────────────────────────────────────────────── */
+.footer {
+  background: #1e293b;
+  color: #94a3b8;
+  padding: 2.5rem 1.5rem 1.5rem;
+  margin-top: 3rem;
+}
+.footer-inner { max-width: 1100px; margin: 0 auto; }
+.footer-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #334155;
+}
+.footer-brand h3 { color: var(--primary); font-size: 1.25rem; font-weight: 700; margin-bottom: 0.4rem; }
+.footer-brand p { font-size: 0.85rem; max-width: 220px; line-height: 1.6; color: #64748b; }
+.footer-links h4 { color: #e2e8f0; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.footer-links ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.footer-links ul li a { color: #64748b; font-size: 0.875rem; }
+.footer-links ul li a:hover { color: var(--primary); }
+.footer-social { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.25rem; }
+.social-btn {
+  display: inline-block;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  transition: all 0.15s;
+}
+.social-btn:hover { border-color: var(--primary); color: var(--primary); text-decoration: none; }
+.footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding-top: 1.25rem;
+  font-size: 0.8rem;
+  color: #475569;
+}

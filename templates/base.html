@@ -90,6 +90,41 @@
   {% endif %}
   {% block content %}{% endblock %}
 </div>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+
+      <div class="footer-brand">
+        <h3>DailyCom</h3>
+        <p>Smart ride sharing for daily commuters. Save money, reduce traffic, travel smarter.</p>
+      </div>
+
+      <div class="footer-links">
+        <h4>Navigate</h4>
+        <ul>
+          <li><a href="{% url 'home' %}">Home</a></li>
+          <li><a href="{% url 'create_ride' %}">Create a Ride</a></li>
+          <li><a href="{% url 'my_bookings' %}">My Bookings</a></li>
+          <li><a href="{% url 'login' %}">Login</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-links">
+        <h4>Connect</h4>
+        <div class="footer-social">
+          <a href="https://github.com/YOUR_USERNAME" class="social-btn" target="_blank">GitHub</a>
+          <a href="https://linkedin.com/in/YOUR_USERNAME" class="social-btn" target="_blank">LinkedIn</a>
+          <a href="mailto:YOUR@gmail.com" class="social-btn">Gmail</a>
+        </div>
+      </div>
+
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 DailyCom. Built with Django.</span>
+      <span>Made with care for daily commuters in Hyderabad 🚗</span>
+    </div>
+  </div>
+</footer>
 
 <style>
   /* ── Navbar ── */
